@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.vite/
+.tauri/
+target/
+.env
+.env.*
+.DS_Store
+*.log
+coverage/
