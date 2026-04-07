@@ -1,0 +1,12 @@
+{
+  "name": "ai-interaction-assist",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "pnpm --filter desktop dev",
+    "build": "pnpm --filter desktop build",
+    "lint": "echo \"Lint not configured yet\"",
+    "typecheck": "echo \"Typecheck not configured yet\""
+  }
+}
