@@ -1,0 +1,66 @@
+.outline-tree-root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.outline-chapter {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 16px;
+  background: rgba(8, 15, 31, 0.84);
+  padding: 12px;
+}
+
+.outline-chapter-title {
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 6px;
+}
+
+.outline-chapter-summary {
+  color: #94a3b8;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.outline-section {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.72);
+  padding: 12px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.outline-section-active {
+  border-color: rgba(96, 165, 250, 0.58);
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.22) inset;
+  background: rgba(30, 41, 59, 0.92);
+}
+
+.outline-section-done {
+  border-color: rgba(74, 222, 128, 0.5);
+}
+
+.outline-section-idle {
+  opacity: 0.85;
+}
+
+.outline-section-title {
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 4px;
+}
+
+.outline-section-summary {
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.outline-section-state {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #93c5fd;
+}
