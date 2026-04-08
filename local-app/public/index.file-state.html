@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 交互式学习系统</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="left-panel">
+        <div class="panel-title">主题与配置</div>
+        <button class="primary-button" id="continueBtn">继续上次学习</button>
+
+        <div class="section-title">Provider</div>
+        <select class="select-input" id="providerSelect">
+          <option value="mock">mock</option>
+          <option value="openai-responses">openai-responses</option>
+          <option value="oauth-backend">oauth-backend</option>
+        </select>
+
+        <div class="section-title">新建学习主题</div>
+        <form class="topic-form" id="topicForm">
+          <input class="text-input" id="titleInput" placeholder="主题名称，例如 PID 控制" />
+          <textarea class="text-area" id="goalInput" placeholder="学习目标，例如理解 PID 三项作用并能口头解释"></textarea>
+          <select class="select-input" id="modeInput">
+            <option value="补基础模式">补基础模式</option>
+            <option value="理解模式" selected>理解模式</option>
+            <option value="考试模式">考试模式</option>
+            <option value="答辩模式">答辩模式</option>
+            <option value="论文模式">论文模式</option>
+            <option value="项目模式">项目模式</option>
+          </select>
+          <button class="primary-button" type="submit">创建主题</button>
+        </form>
+
+        <div class="section-title">最近主题</div>
+        <div class="topic-list" id="topicList"></div>
+      </aside>
+
+      <main class="center-panel">
+        <div class="hero-card">
+          <div class="eyebrow">当前主题</div>
+          <h1 id="topicTitle">AI 交互式学习系统</h1>
+          <p id="topicGoal">本地一键打开的长期学习网页应用。</p>
+        </div>
+
+        <div class="grid-two">
+          <section class="content-card">
+            <h2>主题档案</h2>
+            <div class="meta-row"><span>当前模式</span><strong id="topicMode">-</strong></div>
+            <div class="meta-row"><span>当前阶段</span><strong id="topicStage">-</strong></div>
+            <div class="meta-row"><span>当前状态</span><strong id="topicStatus">-</strong></div>
+            <div class="meta-row"><span>下次入口</span><strong id="topicNext">-</strong></div>
+          </section>
+          <section class="content-card">
+            <h2>当前薄弱点</h2>
+            <ul id="weakPointList"><li>当前还没有记录薄弱点。</li></ul>
+          </section>
+        </div>
+
+        <div class="grid-two">
+          <section class="content-card">
+            <div class="section-header-row">
+              <h2>本轮学习</h2>
+              <button class="primary-button small-button" id="startSessionBtn">开始本轮学习</button>
+            </div>
+            <div class="session-focus-box">
+              <div class="session-focus-label">当前主题</div>
+              <div class="session-focus-title" id="sessionTopicTitle">-</div>
+              <div class="session-focus-text" id="sessionTopicGoal">-</div>
+              <div class="session-focus-text" id="sessionTopicNext">-</div>
+            </div>
+            <div class="session-diagnosis-box">
+              <div class="session-focus-label">本轮问题</div>
+              <ol class="question-list" id="questionList">
+                <li>请先开始本轮学习。</li>
+              </ol>
+            </div>
+          </section>
+          <section class="content-card">
+            <h2>本轮沉淀</h2>
+            <div class="session-summary-block">
+              <div class="session-focus-label">本轮总结</div>
+              <div class="session-focus-text" id="sessionSummary">开始一轮学习后，这里会出现总结。</div>
+            </div>
+            <div class="grid-two compact-grid">
+              <div class="mini-card">
+                <div class="session-focus-label">已掌握</div>
+                <ul id="masteredList"><li>当前还没有记录已掌握点。</li></ul>
+              </div>
+              <div class="mini-card">
+                <div class="session-focus-label">当前薄弱点</div>
+                <ul id="sessionWeakList"><li>当前还没有记录薄弱点。</li></ul>
+              </div>
+            </div>
+            <div class="session-summary-block">
+              <div class="session-focus-label">下次入口</div>
+              <div class="session-focus-text" id="sessionNext">-</div>
+            </div>
+          </section>
+        </div>
+
+        <section class="content-card">
+          <h2>回答本轮问题</h2>
+          <form class="topic-form" id="answerForm">
+            <textarea class="text-area" id="answerInput" placeholder="在这里写下你的理解、例子或当前困惑。"></textarea>
+            <button class="primary-button" id="submitAnswerBtn" type="submit">提交回答并更新本轮沉淀</button>
+          </form>
+        </section>
+
+        <section class="content-card">
+          <h2>最近记录</h2>
+          <div class="session-list" id="recentSessionList">
+            <div class="empty-state">当前主题还没有历史学习记录。</div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="right-panel">
+        <div class="panel-title">状态</div>
+        <div class="chat-card assistant">
+          <div class="chat-role">本地网页模式</div>
+          <div class="chat-text">当前入口默认走本地文件持久化版，学习记录会通过本地服务保存到 data/state.json。</div>
+        </div>
+        <div class="chat-card assistant">
+          <div class="chat-role">当前状态</div>
+          <div class="chat-text" id="statusText">等待开始本轮学习。</div>
+        </div>
+      </aside>
+    </div>
+    <script type="module" src="/app.file-state.js"></script>
+  </body>
+</html>
