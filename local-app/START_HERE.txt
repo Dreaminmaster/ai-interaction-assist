@@ -1,0 +1,54 @@
+START HERE
+
+如果你现在就想直接试这个项目，不用看复杂结构，先看这一页就够了。
+
+默认推荐用法：
+Windows：双击 start-one-click.bat
+macOS：双击 start-one-click.command
+Linux：运行 ./start-one-click.sh
+
+这三个文件会默认启动：
+src/server.one-click.ts
+public/index.file-state.html
+public/app.file-state.js
+
+也就是当前仓库里最接近一键本地打开的网页学习系统的版本。
+
+它会自动做什么：
+1. 自动准备 .env
+2. 自动检查依赖
+3. 必要时自动安装依赖
+4. 启动本地服务
+5. 自动打开浏览器
+6. 默认进入文件持久化版页面
+
+第一次建议这样测：
+先在左边把 provider 保持为 mock。
+这样不需要任何额外配置，就能直接测试：
+- 新建主题
+- 开始本轮学习
+- 输入回答
+- 更新本轮沉淀
+- 同步回主题档案
+- 本地文件保存
+
+想接真实 OpenAI：
+编辑 .env，加入：
+OPENAI_API_KEY=你的key
+OPENAI_MODEL=gpt-5
+然后重新启动，再把 provider 切到 openai-responses。
+
+想接你自己的 OAuth 或 proxy 后端：
+编辑 .env，加入：
+OAUTH_BACKEND_UPSTREAM=你的接口地址
+然后重新启动，再把 provider 切到 oauth-backend。
+
+当前最重要的文件：
+start-one-click.bat
+start-one-click.command
+start-one-click.sh
+src/server.one-click.ts
+public/index.file-state.html
+public/app.file-state.js
+
+如果你的目标只是先用起来，暂时不需要管仓库里前面留下的其他原型文件，先把 local-app 这一套跑起来最重要。
