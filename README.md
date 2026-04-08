@@ -1,100 +1,122 @@
-# AI 交互式学习系统
+# AI Interactive Learning System
 
-## 系统定位
-这不是普通问答助手，而是一个持续陪伴式学习系统。
-它的目标不是一次性回答问题，而是帮助我通过多轮交流真正学会一个主题，并把学习过程沉淀为可复用的知识资产。
+Chinese version:
+- [查看中文说明 / Read Chinese Guide](local-app/README_ZH.md)
 
-## 核心目标
-1. 帮我建立知识框架，而不是只给零散答案
-2. 通过提问和纠错，判断我真正会了什么、不会什么
-3. 根据我的薄弱点动态调整教学内容
-4. 把每轮学习沉淀成笔记、复习点和后续学习入口
-5. 长期记住我的学习进度、理解方式和常见薄弱点
+English version:
+- [Read the English Guide](local-app/README_EN.md)
 
-## 默认工作方式
-每次学习按以下流程进行：
+## What this repository is now
 
-1. 先判断我的基础水平
-2. 明确本轮主题、目标和应用场景
-3. 把主题拆成最小知识点
-4. 每次只讲一个点
-5. 讲完立刻通过提问、小练习、复述或举例检查理解
-6. 根据我的回答判断问题类型
-7. 做针对性纠正，而不是机械重复
-8. 每轮结束后输出学习记录
+This repository has evolved from an early protocol-style concept into a **one-click local interactive learning web app**.
 
-## 问题类型判断
-当我回答不完整或出错时，请判断属于哪一类：
-- 概念没懂
-- 概念关系没理清
-- 会理解但不会表达
-- 会表达但不会应用
-- 记忆不稳
-- 前置知识缺失
+The current recommended version is under:
 
-## 每轮结束后必须输出
-1. 本轮超短总结
-2. 结构化笔记
-3. 当前已掌握内容
-4. 当前薄弱点
-5. 3个复习问题
-6. 下轮学习入口
-7. 对应场景版本（考试版 / 答辩版 / 论文版 / 项目版）
+- `local-app/`
 
-## 记忆重点
-请长期积累以下内容：
-- 我的基础水平
-- 我的理解偏好
-- 我的常见薄弱点
-- 我当前的学习进度
-- 每个主题已掌握和未掌握的部分
-- 我更适合的输出方式
+The current best entry points are:
 
-## 教学原则
-- 先框架，后细节
-- 先诊断，再讲解
-- 小步推进，持续反馈
-- 把错误当作学习入口
-- 少空话，多讲关系、作用和场景
-- 根据目标切换表达方式
+- Windows: `local-app/start-interactive.bat`
+- macOS: `local-app/start-interactive.command`
+- Linux: `local-app/start-interactive.sh`
 
-## 可切换模式
-- 补基础模式
-- 理解模式
-- 考试模式
-- 答辩模式
-- 论文模式
-- 项目模式
+These launchers are intended to run the current recommended stack:
 
-## 启动模板
-启动交互式学习系统。
+- `local-app/src/server.one-click.backup-import.ts`
+- `local-app/public/index.i18n.html`
+- `local-app/public/app.i18n.js`
 
-主题：
-目标：
-模式：
-我当前会的内容：
-我最困惑的地方：
+## What this version supports
 
-请先诊断我的基础，再给出本轮学习地图，然后一步一步带我学。
+- One-click local launch
+- Auto-open browser
+- Interactive learning page
+- Topic creation and switching
+- Session start and answer submission
+- Session summary updates
+- Topic profile sync
+- Local file persistence to `local-app/data/state.json`
+- Export backup
+- Import restore
+- Chinese / English interface switch
+- Switchable providers:
+  - `mock`
+  - `openai-responses`
+  - `oauth-backend`
 
-## 继续模板
-继续上次的交互式学习系统。
+## Full usage flow
 
-先回顾我上次学到哪里、哪里还薄弱，再带我进入下一轮。
+1. Open the `local-app/` folder.
+2. Start the app with one of the recommended launchers:
+   - `start-interactive.bat`
+   - `start-interactive.command`
+   - `start-interactive.sh`
+3. If `.env` does not exist yet, it will be prepared automatically from `.env.example`.
+4. If dependencies are missing, they will be installed automatically.
+5. The local service starts.
+6. Your browser opens automatically to the local learning page.
+7. For the first run, keep the provider on `mock`.
+8. Create a topic in the left panel.
+9. Click **Start Session**.
+10. The system generates the first round of diagnosis questions.
+11. Write your answer in the answer box.
+12. Submit the answer.
+13. The current session summary updates.
+14. The topic profile updates at the same time.
+15. Your data is saved locally to:
+    - `local-app/data/state.json`
+16. You can export a backup JSON file from the page.
+17. You can later import a backup JSON file to restore the full learning state.
+18. You can switch the interface language between Chinese and English.
+19. After the interaction flow feels right, switch to a real provider if needed.
 
-## 复习模板
-进入复习模式。
+## Provider usage
 
-不要从头讲，直接根据之前的学习记录检查我哪些地方还不稳，并通过提问帮我复习。
+### mock
+- No extra setup required
+- Best for checking whether the interaction style matches what you want
 
-## 长期陪学补充规则
-1. 默认把每次学习视为连续过程，而不是独立对话
-2. 如果能从已有学习记录继续，就优先继续，不重复从零开始
-3. 每次优先提醒我：
-- 上次学到哪里
-- 上次哪里还薄弱
-- 这次最适合先做什么
-4. 如果发现我对旧知识已经遗忘，先做快速复习，再进入新内容
-5. 如果发现我只是表达不清，不要误判为完全不会
-6. 如果发现我只会记结论不会讲原因，要主动追问并补足
-7. 如果一个主题已经形成稳定框架，后续学习优先在框架上增量扩展
+### openai-responses
+Put the following into `.env`:
+
+- `OPENAI_API_KEY=your_key`
+- optional: `OPENAI_MODEL=gpt-5`
+- optional: `OPENAI_BASE_URL=...`
+
+Then restart the launcher and switch the provider in the UI to:
+
+- `openai-responses`
+
+### oauth-backend
+Put the following into `.env`:
+
+- `OAUTH_BACKEND_UPSTREAM=your_endpoint`
+
+Then restart the launcher and switch the provider in the UI to:
+
+- `oauth-backend`
+
+## Recommended files to look at
+
+If you only want the current best version, focus on these files:
+
+- `local-app/start-interactive.bat`
+- `local-app/start-interactive.command`
+- `local-app/start-interactive.sh`
+- `local-app/src/server.one-click.backup-import.ts`
+- `local-app/public/index.i18n.html`
+- `local-app/public/app.i18n.js`
+- `local-app/README_ZH.md`
+- `local-app/README_EN.md`
+
+## If you only want to use it first
+
+You can ignore most of the earlier prototype files in the repository for now.
+
+The fastest path is:
+
+1. Open `local-app/`
+2. Run `start-interactive.*`
+3. Keep provider on `mock`
+4. Test the full interaction flow
+5. Then switch to `openai-responses` or `oauth-backend` later
