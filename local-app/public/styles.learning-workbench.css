@@ -1,0 +1,192 @@
+.workbench-shell {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #08101f 0%, #0f172a 100%);
+}
+
+.workbench-sidebar {
+  padding: 20px;
+  border-right: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(6, 13, 28, 0.94);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.app-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(37, 99, 235, 0.14);
+  color: #bfdbfe;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upload-label {
+  cursor: pointer;
+}
+
+.setting-block.grow {
+  flex: 1;
+  min-height: 0;
+}
+
+.workbench-main {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hero-workbench-card {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.82);
+  padding: 24px;
+}
+
+.hero-topline {
+  color: #93c5fd;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.hero-workbench-card h1 {
+  margin: 0 0 10px;
+  font-size: 34px;
+  line-height: 1.08;
+}
+
+.hero-workbench-card p {
+  margin: 0;
+  color: #cbd5e1;
+}
+
+.hero-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.hero-meta-card {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 16px;
+  background: rgba(30, 41, 59, 0.72);
+  padding: 14px;
+}
+
+.hero-meta-label,
+.task-label,
+.progress-label,
+.mini-status {
+  color: #93c5fd;
+  font-size: 12px;
+}
+
+.hero-meta-value,
+.task-title {
+  margin-top: 8px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.workbench-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 16px;
+}
+
+.second-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.learning-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.map-node {
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 16px;
+  background: rgba(8, 15, 31, 0.88);
+  padding: 16px;
+}
+
+.map-node-active {
+  border-color: rgba(96, 165, 250, 0.55);
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.24) inset;
+}
+
+.map-node-done {
+  border-color: rgba(74, 222, 128, 0.45);
+}
+
+.map-node-stage {
+  font-size: 12px;
+  color: #93c5fd;
+  margin-bottom: 8px;
+}
+
+.map-node-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.map-node-text,
+.task-text {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.task-block,
+.progress-row {
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 16px;
+  background: rgba(8, 15, 31, 0.8);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.answer-large {
+  min-height: 160px;
+}
+
+@media (max-width: 1200px) {
+  .workbench-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-meta-grid,
+  .workbench-grid,
+  .second-grid,
+  .learning-map {
+    grid-template-columns: 1fr;
+  }
+}
