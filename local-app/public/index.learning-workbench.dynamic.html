@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Learning Workbench</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.learning-workbench.css" />
+  </head>
+  <body>
+    <div class="workbench-shell">
+      <aside class="workbench-sidebar">
+        <div class="sidebar-header">
+          <div class="app-badge">AI Learning Workbench</div>
+          <div class="panel-title" data-i18n="panel_config_title">主题与配置</div>
+        </div>
+
+        <div class="sidebar-actions">
+          <button class="primary-button" id="continueBtn" data-i18n="continue_learning">继续上次学习</button>
+          <button class="secondary-button" id="exportBtn" data-i18n="export_backup">导出学习备份</button>
+          <label class="secondary-button upload-label" for="importFileInput">
+            <span data-i18n="import_backup">导入学习备份</span>
+          </label>
+          <input id="importFileInput" type="file" accept="application/json" hidden />
+        </div>
+
+        <div class="setting-block">
+          <div class="section-title" data-i18n="language">语言</div>
+          <select class="select-input" id="languageSelect">
+            <option value="zh-CN">中文</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+
+        <div class="setting-block">
+          <div class="section-title">Provider</div>
+          <select class="select-input" id="providerSelect">
+            <option value="mock">mock</option>
+            <option value="openai-responses">openai-responses</option>
+            <option value="oauth-backend">oauth-backend</option>
+            <option value="local-openai-compatible">local-openai-compatible</option>
+          </select>
+        </div>
+
+        <div class="setting-block">
+          <div class="section-title" data-i18n="create_topic">新建学习主题</div>
+          <form class="topic-form" id="topicForm">
+            <input class="text-input" id="titleInput" data-i18n-placeholder="title_placeholder" placeholder="主题名称，例如 PID 控制" />
+            <textarea class="text-area" id="goalInput" data-i18n-placeholder="goal_placeholder" placeholder="学习目标，例如理解 PID 三项作用并能口头解释"></textarea>
+            <select class="select-input" id="modeInput">
+              <option value="补基础模式" data-i18n="mode_basic">补基础模式</option>
+              <option value="理解模式" selected data-i18n="mode_understand">理解模式</option>
+              <option value="考试模式" data-i18n="mode_exam">考试模式</option>
+              <option value="答辩模式" data-i18n="mode_defense">答辩模式</option>
+              <option value="论文模式" data-i18n="mode_paper">论文模式</option>
+              <option value="项目模式" data-i18n="mode_project">项目模式</option>
+            </select>
+            <button class="primary-button" type="submit" data-i18n="create_topic_button">创建主题</button>
+          </form>
+        </div>
+
+        <div class="setting-block grow">
+          <div class="section-title" data-i18n="recent_topics">最近主题</div>
+          <div class="topic-list" id="topicList"></div>
+        </div>
+      </aside>
+
+      <main class="workbench-main">
+        <section class="hero-workbench-card">
+          <div class="hero-topline" data-i18n="current_topic">当前主题</div>
+          <h1 id="topicTitle">AI 学习工作台</h1>
+          <p id="topicGoal">本地交互式学习工作台。</p>
+          <div class="hero-meta-grid">
+            <div class="hero-meta-card">
+              <div class="hero-meta-label" data-i18n="current_mode">当前模式</div>
+              <div class="hero-meta-value" id="topicMode">-</div>
+            </div>
+            <div class="hero-meta-card">
+              <div class="hero-meta-label" data-i18n="current_stage">当前阶段</div>
+              <div class="hero-meta-value" id="topicStage">-</div>
+            </div>
+            <div class="hero-meta-card">
+              <div class="hero-meta-label" data-i18n="current_status">当前状态</div>
+              <div class="hero-meta-value" id="topicStatus">-</div>
+            </div>
+            <div class="hero-meta-card">
+              <div class="hero-meta-label" data-i18n="next_entry">下次入口</div>
+              <div class="hero-meta-value" id="topicNext">-</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="workbench-grid">
+          <section class="content-card map-card">
+            <div class="card-header-row">
+              <h2>Learning Map</h2>
+              <div class="mini-status" id="mapStatusText">0 nodes</div>
+            </div>
+            <div class="learning-map" id="learningMap"></div>
+          </section>
+
+          <section class="content-card task-card">
+            <div class="card-header-row">
+              <h2>Current Task</h2>
+              <button class="primary-button small-button" id="startSessionBtn" data-i18n="start_session">开始本轮学习</button>
+            </div>
+            <div class="task-block">
+              <div class="task-label">Task</div>
+              <div class="task-title" id="sessionTopicTitle">-</div>
+              <div class="task-text" id="sessionTopicGoal">-</div>
+              <div class="task-text" id="sessionTopicNext">-</div>
+            </div>
+            <div class="task-block">
+              <div class="task-label">Why this now</div>
+              <div class="task-text" id="taskReasonText">-</div>
+            </div>
+            <div class="task-block">
+              <div class="task-label">Done when</div>
+              <div class="task-text" id="taskDoneText">-</div>
+            </div>
+            <div class="task-block">
+              <div class="task-label">Questions</div>
+              <ol class="question-list" id="questionList">
+                <li data-i18n="start_session_first">请先开始本轮学习。</li>
+              </ol>
+            </div>
+          </section>
+        </section>
+
+        <section class="workbench-grid second-grid">
+          <section class="content-card progress-card">
+            <div class="card-header-row">
+              <h2>Progress</h2>
+              <div class="mini-status" id="progressStatusText">0 / 0</div>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label">Mastered</div>
+              <ul id="masteredList"><li data-i18n="no_mastered_points">当前还没有记录已掌握点。</li></ul>
+            </div>
+            <div class="progress-row">
+              <div class="progress-label">Weak Points</div>
+              <ul id="sessionWeakList"><li data-i18n="no_weak_points">当前还没有记录薄弱点。</li></ul>
+            </div>
+          </section>
+
+          <section class="content-card summary-card">
+            <div class="card-header-row">
+              <h2 data-i18n="session_summary_title">本轮沉淀</h2>
+              <div class="mini-status" id="statusText">等待开始本轮学习。</div>
+            </div>
+            <div class="session-summary-block">
+              <div class="session-focus-label" data-i18n="summary">本轮总结</div>
+              <div class="session-focus-text" id="sessionSummary">开始一轮学习后，这里会出现总结。</div>
+            </div>
+            <div class="session-summary-block">
+              <div class="session-focus-label" data-i18n="next_entry">下次入口</div>
+              <div class="session-focus-text" id="sessionNext">-</div>
+            </div>
+          </section>
+        </section>
+
+        <section class="content-card answer-card">
+          <div class="card-header-row">
+            <h2 data-i18n="answer_questions">回答本轮问题</h2>
+            <div class="mini-status" id="providerStatusText">mock</div>
+          </div>
+          <form class="topic-form" id="answerForm">
+            <textarea class="text-area answer-large" id="answerInput" data-i18n-placeholder="answer_placeholder" placeholder="在这里写下你的理解、例子或当前困惑。"></textarea>
+            <button class="primary-button" id="submitAnswerBtn" type="submit" data-i18n="submit_answer">提交回答并更新本轮沉淀</button>
+          </form>
+        </section>
+
+        <section class="content-card history-card">
+          <div class="card-header-row">
+            <h2 data-i18n="recent_sessions">最近记录</h2>
+            <div class="mini-status">History</div>
+          </div>
+          <div class="session-list" id="recentSessionList">
+            <div class="empty-state" data-i18n="no_sessions">当前主题还没有历史学习记录。</div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/app.learning-workbench.dynamic.js"></script>
+  </body>
+</html>
