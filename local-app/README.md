@@ -1,70 +1,65 @@
-# local-app
+﻿# local-app
 
-这是当前仓库里最适合“一键本地打开”的版本。
+这是当前仓库里用于本地运行的学习系统入口，界面是白色文档化阅读布局（左侧大纲 + 中间正文）。
 
-## 目标形态
-启动一次本地服务后，会自动打开浏览器到本地页面：
-- 页面和 API 都来自同一个本地项目
-- 所有学习数据保存在浏览器本地存储中
-- 可以切换 provider：mock / openai-responses / oauth-backend
+## 你关心的关键事实
+- Provider 下拉不是假切换。
+- 段落提问走 `POST /api/ask-inline`。
+- 学习诊断走 `POST /api/analyze-topic-answer`。
+- 现在支持页面内填写 Provider 参数并保存到浏览器本地。
+- 新增了“测试当前 Provider 连接”按钮：能直接验证是否真的连通。
 
-## 目录说明
-- `src/server.ts`：本地服务入口，会自动打开浏览器
-- `src/providers.ts`：三种 provider 的本地服务端实现
-- `public/index.html`：主页面
-- `public/app.js`：页面逻辑
-- `public/styles.css`：页面样式
-
-## 本地启动
-1. 进入 `local-app/`
-2. 复制 `.env.example` 为 `.env`
-3. 安装依赖
-4. 运行开发模式
-
-示意命令：
-
+## 启动
 ```bash
 cd local-app
 cp .env.example .env
 npm install
 npm run dev
 ```
+默认地址：`http://127.0.0.1:8787`
 
-启动后默认会打开：
+## Provider 说明
 
-```text
-http://127.0.0.1:8787
-```
+### 1) local-openai-compatible
+用于接本地模型网关（OpenAI 兼容）。
+必填：
+- Local Model Base URL
+- Local Model Name
+可选：
+- Local Model API Key
 
-## provider 使用说明
-### mock
-不需要额外配置，适合先看页面和流程。
+### 2) openai-responses
+必填：
+- OPENAI_API_KEY
+可选：
+- OpenAI Base URL
+- OpenAI Model
 
-### openai-responses
-需要在 `.env` 中填写：
-- `OPENAI_API_KEY`
-- 可选 `OPENAI_MODEL`
-- 可选 `OPENAI_BASE_URL`
+### 3) oauth-backend
+必填：
+- OAuth Backend Upstream URL
+可选：
+- OAuth Access Token
 
-### oauth-backend
-需要在 `.env` 中填写：
-- `OAUTH_BACKEND_UPSTREAM`
+### 4) mock
+仅用于无模型时验证交互流程。
 
-这个地址应由你自己的后端 / proxy 提供。
+## 关于 OAuth “扫码登录”
+当前版本不内置扫码登录按钮。原因：
+- OAuth 授权页、回调域名、client 配置都属于你的 OAuth 服务端体系。
+- 本项目现在是“调用你提供的 upstream + 可选 token”的接入方式。
 
-## 当前已具备能力
-- 新建学习主题
-- 切换最近主题
-- 开始本轮学习
-- 生成首轮诊断问题
-- 提交回答
-- 调本地 `/api/analyze-topic-answer`
-- 更新本轮沉淀
-- 把结果同步回主题档案
+如果你要扫码登录，我们下一步会接完整 OAuth 授权流（authorize/callback/token exchange）。
 
-## 下一步建议
-如果你要继续往真正可用推进，最值得做的是：
-1. 把当前页面再做细一点
-2. 给 topic / session 加文件持久化，而不是只用浏览器本地存储
-3. 增加真正的 AI 学习地图生成
-4. 后续再做双击启动器或桌面打包
+## 如何判断是不是“真接口”
+1. 在左侧填完 Provider 配置并点“保存 Provider 配置”。
+2. 点击“测试当前 Provider 连接”。
+3. 若成功，状态栏显示“连接成功: ...”；若失败，会显示具体错误。
+4. 提问失败时会在段落下方看到错误回复，而不是静默无反应。
+
+## 主要文件
+- `src/server.one-click.backup-import.ts`
+- `src/providers.ts`
+- `public/index.i18n.html`
+- `public/styles.css`
+- `public/app.i18n.js`

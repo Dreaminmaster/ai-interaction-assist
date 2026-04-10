@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
@@ -7,34 +7,15 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <div class="app-shell">
-      <aside class="left-panel">
-        <div class="panel-title" data-i18n="panel_config_title">主题与配置</div>
-        <button class="primary-button" id="continueBtn" data-i18n="continue_learning">继续上次学习</button>
-        <button class="secondary-button" id="exportBtn" data-i18n="export_backup">导出学习备份</button>
-        <label class="secondary-button" for="importFileInput" style="display:block;text-align:center;line-height:1.2;">
-          <span data-i18n="import_backup">导入学习备份</span>
-        </label>
-        <input id="importFileInput" type="file" accept="application/json" style="display:none;" />
+    <div class="layout">
+      <aside class="outline-panel">
+        <div class="brand">Learning OS</div>
+        <input class="search" id="outlineSearch" placeholder="搜索主题或章节" />
 
-        <div class="section-title" data-i18n="language">语言</div>
-        <select class="select-input" id="languageSelect">
-          <option value="zh-CN">中文</option>
-          <option value="en">English</option>
-        </select>
-
-        <div class="section-title">Provider</div>
-        <select class="select-input" id="providerSelect">
-          <option value="local-openai-compatible">local-openai-compatible</option>
-          <option value="openai-responses">openai-responses</option>
-          <option value="oauth-backend">oauth-backend</option>
-          <option value="mock">mock</option>
-        </select>
-
-        <div class="section-title" data-i18n="create_topic">新建学习主题</div>
+        <div class="section-label" data-i18n="create_topic">新建学习主题</div>
         <form class="topic-form" id="topicForm">
-          <input class="text-input" id="titleInput" data-i18n-placeholder="title_placeholder" placeholder="主题名称，例如 PID 控制" />
-          <textarea class="text-area" id="goalInput" data-i18n-placeholder="goal_placeholder" placeholder="学习目标，例如理解 PID 三项作用并能口头解释"></textarea>
+          <input class="text-input" id="titleInput" data-i18n-placeholder="title_placeholder" placeholder="主题名称" />
+          <textarea class="text-area" id="goalInput" data-i18n-placeholder="goal_placeholder" placeholder="学习目标"></textarea>
           <select class="select-input" id="modeInput">
             <option value="补基础模式" data-i18n="mode_basic">补基础模式</option>
             <option value="理解模式" selected data-i18n="mode_understand">理解模式</option>
@@ -43,112 +24,93 @@
             <option value="论文模式" data-i18n="mode_paper">论文模式</option>
             <option value="项目模式" data-i18n="mode_project">项目模式</option>
           </select>
-          <button class="primary-button" type="submit" data-i18n="create_topic_button">创建主题</button>
+          <button class="primary-btn" type="submit" data-i18n="create_topic_button">创建主题</button>
         </form>
 
-        <div class="section-title" data-i18n="recent_topics">最近主题</div>
-        <div class="topic-list" id="topicList"></div>
+        <div class="section-label" data-i18n="recent_topics">最近主题</div>
+        <div class="outline-list" id="topicList"></div>
+
+        <div class="section-label">Provider</div>
+        <select class="select-input" id="providerSelect">
+          <option value="local-openai-compatible">local-openai-compatible</option>
+          <option value="openai-responses">openai-responses</option>
+          <option value="oauth-backend">oauth-backend</option>
+          <option value="mock">mock</option>
+        </select>
+
+        <details class="provider-settings" open>
+          <summary data-i18n="provider_config_title">Provider 配置</summary>
+          <input class="text-input" id="openaiBaseUrlInput" placeholder="OpenAI Base URL" />
+          <input class="text-input" id="openaiModelInput" placeholder="OpenAI Model" />
+          <input class="text-input" id="openaiApiKeyInput" placeholder="OPENAI_API_KEY" />
+          <input class="text-input" id="localBaseUrlInput" placeholder="Local Model Base URL" />
+          <input class="text-input" id="localModelInput" placeholder="Local Model Name" />
+          <input class="text-input" id="localApiKeyInput" placeholder="Local Model API Key (optional)" />
+          <input class="text-input" id="oauthUpstreamInput" placeholder="OAuth Backend Upstream URL" />
+          <input class="text-input" id="oauthAccessTokenInput" placeholder="OAuth Access Token (optional)" />
+          <button class="secondary-btn" id="saveProviderConfigBtn" type="button" data-i18n="save_provider_config">保存 Provider 配置</button>
+          <button class="secondary-btn" id="testProviderBtn" type="button">测试当前 Provider 连接</button>
+        </details>
+
+        <div class="side-actions">
+          <select class="select-input" id="languageSelect">
+            <option value="zh-CN">中文</option>
+            <option value="en">English</option>
+          </select>
+          <button class="secondary-btn" id="exportBtn" data-i18n="export_backup">导出学习备份</button>
+          <label class="secondary-btn upload-btn" for="importFileInput">
+            <span data-i18n="import_backup">导入学习备份</span>
+          </label>
+          <input id="importFileInput" type="file" accept="application/json" style="display:none;" />
+        </div>
       </aside>
 
-      <main class="center-panel">
-        <div class="hero-card">
-          <div class="eyebrow" data-i18n="current_topic">当前主题</div>
+      <main class="doc-panel">
+        <div class="doc-head">
+          <div class="breadcrumb" id="breadcrumbText">Learning / Topic / Section</div>
           <h1 id="topicTitle">AI 交互式学习系统</h1>
           <p id="topicGoal">本地一键打开的长期学习网页应用。</p>
+          <div class="status-inline" id="statusText">等待开始学习</div>
         </div>
 
-        <section class="content-card lesson-flow-card">
-          <div class="section-header-row">
-            <h2 data-i18n="reading_flow">段落学习流</h2>
-            <span class="session-focus-label" data-i18n="ask_hint">可在段落间直接提问</span>
-          </div>
+        <section class="doc-section">
+          <div class="doc-section-title" data-i18n="reading_flow">段落学习流</div>
           <div id="lessonFlow" class="lesson-flow"></div>
         </section>
 
-        <div class="grid-two">
-          <section class="content-card">
-            <h2 data-i18n="topic_profile">主题档案</h2>
-            <div class="meta-row"><span data-i18n="current_mode">当前模式</span><strong id="topicMode">-</strong></div>
-            <div class="meta-row"><span data-i18n="current_stage">当前阶段</span><strong id="topicStage">-</strong></div>
-            <div class="meta-row"><span data-i18n="current_status">当前状态</span><strong id="topicStatus">-</strong></div>
-            <div class="meta-row"><span data-i18n="next_entry">下次入口</span><strong id="topicNext">-</strong></div>
-          </section>
-          <section class="content-card">
-            <h2 data-i18n="current_weak_points">当前薄弱点</h2>
-            <ul id="weakPointList"><li data-i18n="no_weak_points">当前还没有记录薄弱点。</li></ul>
-          </section>
-        </div>
-
-        <div class="grid-two">
-          <section class="content-card">
-            <div class="section-header-row">
-              <h2 data-i18n="current_session">本轮学习</h2>
-              <button class="primary-button small-button" id="startSessionBtn" data-i18n="start_session">开始本轮学习</button>
-            </div>
-            <div class="session-focus-box">
-              <div class="session-focus-label" data-i18n="current_topic">当前主题</div>
-              <div class="session-focus-title" id="sessionTopicTitle">-</div>
-              <div class="session-focus-text" id="sessionTopicGoal">-</div>
-              <div class="session-focus-text" id="sessionTopicNext">-</div>
-            </div>
-            <div class="session-diagnosis-box">
-              <div class="session-focus-label" data-i18n="current_questions">本轮问题</div>
-              <ol class="question-list" id="questionList">
-                <li data-i18n="start_session_first">请先开始本轮学习。</li>
-              </ol>
-            </div>
-          </section>
-          <section class="content-card">
-            <h2 data-i18n="session_summary_title">本轮沉淀</h2>
-            <div class="session-summary-block">
-              <div class="session-focus-label" data-i18n="summary">本轮总结</div>
-              <div class="session-focus-text" id="sessionSummary">开始一轮学习后，这里会出现总结。</div>
-            </div>
-            <div class="grid-two compact-grid">
-              <div class="mini-card">
-                <div class="session-focus-label" data-i18n="mastered_points">已掌握</div>
-                <ul id="masteredList"><li data-i18n="no_mastered_points">当前还没有记录已掌握点。</li></ul>
-              </div>
-              <div class="mini-card">
-                <div class="session-focus-label" data-i18n="session_weak_points">当前薄弱点</div>
-                <ul id="sessionWeakList"><li data-i18n="no_weak_points">当前还没有记录薄弱点。</li></ul>
-              </div>
-            </div>
-            <div class="session-summary-block">
-              <div class="session-focus-label" data-i18n="next_entry">下次入口</div>
-              <div class="session-focus-text" id="sessionNext">-</div>
-            </div>
-          </section>
-        </div>
-
-        <section class="content-card">
-          <h2 data-i18n="answer_questions">回答本轮问题</h2>
-          <form class="topic-form" id="answerForm">
-            <textarea class="text-area" id="answerInput" data-i18n-placeholder="answer_placeholder" placeholder="在这里写下你的理解、例子或当前困惑。"></textarea>
-            <button class="primary-button" id="submitAnswerBtn" type="submit" data-i18n="submit_answer">提交回答并更新本轮沉淀</button>
+        <section class="doc-section qa-block">
+          <div class="doc-section-title" data-i18n="current_questions">本轮问题</div>
+          <ol class="question-list" id="questionList"></ol>
+          <button class="secondary-btn" id="startSessionBtn" data-i18n="start_session">开始本轮学习</button>
+          <form class="answer-form" id="answerForm">
+            <textarea class="answer-input" id="answerInput" data-i18n-placeholder="answer_placeholder" placeholder="在这里写下你的理解、例子或当前困惑。"></textarea>
+            <button class="primary-btn" id="submitAnswerBtn" type="submit" data-i18n="submit_answer">提交回答并更新本轮沉淀</button>
           </form>
         </section>
 
-        <section class="content-card">
-          <h2 data-i18n="recent_sessions">最近记录</h2>
-          <div class="session-list" id="recentSessionList">
-            <div class="empty-state" data-i18n="no_sessions">当前主题还没有历史学习记录。</div>
+        <section class="doc-section profile-block">
+          <div class="doc-section-title" data-i18n="topic_profile">主题档案</div>
+          <div class="meta-grid">
+            <div><span data-i18n="current_mode">当前模式</span><strong id="topicMode">-</strong></div>
+            <div><span data-i18n="current_stage">当前阶段</span><strong id="topicStage">-</strong></div>
+            <div><span data-i18n="current_status">当前状态</span><strong id="topicStatus">-</strong></div>
+            <div><span data-i18n="next_entry">下次入口</span><strong id="topicNext">-</strong></div>
+          </div>
+          <ul id="weakPointList"></ul>
+          <div class="hidden-support">
+            <div id="sessionTopicTitle"></div>
+            <div id="sessionTopicGoal"></div>
+            <div id="sessionTopicNext"></div>
+            <div id="sessionSummary"></div>
+            <div id="sessionNext"></div>
+            <ul id="masteredList"></ul>
+            <ul id="sessionWeakList"></ul>
+            <div id="recentSessionList"></div>
           </div>
         </section>
       </main>
-
-      <aside class="right-panel">
-        <div class="panel-title" data-i18n="status">状态</div>
-        <div class="chat-card assistant">
-          <div class="chat-role" data-i18n="local_web_mode">本地网页模式</div>
-          <div class="chat-text" data-i18n="local_web_mode_desc">当前入口带导入恢复和导出备份按钮，学习记录会通过本地服务保存到 data/state.json。</div>
-        </div>
-        <div class="chat-card assistant">
-          <div class="chat-role" data-i18n="current_status">当前状态</div>
-          <div class="chat-text" id="statusText">等待开始本轮学习。</div>
-        </div>
-      </aside>
     </div>
+
     <script type="module" src="/app.i18n.js"></script>
   </body>
 </html>

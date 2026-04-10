@@ -1,6 +1,16 @@
 ﻿import { config } from './config';
 
 export type ProviderType = 'openai-responses' | 'oauth-backend' | 'local-openai-compatible' | 'mock';
+export interface ProviderRuntimeConfig {
+  openaiBaseUrl?: string;
+  openaiApiKey?: string;
+  openaiModel?: string;
+  localModelBaseUrl?: string;
+  localModelApiKey?: string;
+  localModelName?: string;
+  oauthBackendUpstream?: string;
+  oauthAccessToken?: string;
+}
 
 export interface TopicPayload {
   id: string;
@@ -40,6 +50,7 @@ export interface AnalyzeTopicAnswerRequest {
   topic: TopicPayload;
   session: SessionPayload;
   answer: string;
+  providerConfig?: ProviderRuntimeConfig;
 }
 
 export interface InlineAskRequest {
@@ -48,6 +59,7 @@ export interface InlineAskRequest {
   session: SessionPayload;
   paragraph: string;
   question: string;
+  providerConfig?: ProviderRuntimeConfig;
 }
 
 export interface TopicAnalysisResult {
@@ -59,23 +71,52 @@ export interface TopicAnalysisResult {
   suggestedNextLesson?: string;
 }
 
+export interface ProviderTestRequest {
+  provider: ProviderType;
+  providerConfig?: ProviderRuntimeConfig;
+}
+
 function parseJsonSafely<T>(text: string): T {
   return JSON.parse(text) as T;
 }
 
-async function callOpenAIResponsesJson(prompt: string): Promise<TopicAnalysisResult> {
-  if (!config.openAIApiKey) {
+function getOpenAISettings(runtime?: ProviderRuntimeConfig) {
+  return {
+    baseUrl: runtime?.openaiBaseUrl || config.openAIBaseUrl,
+    apiKey: runtime?.openaiApiKey || config.openAIApiKey,
+    model: runtime?.openaiModel || config.openAIModel
+  };
+}
+
+function getLocalModelSettings(runtime?: ProviderRuntimeConfig) {
+  return {
+    baseUrl: runtime?.localModelBaseUrl || config.localModelBaseUrl,
+    apiKey: runtime?.localModelApiKey || config.localModelApiKey,
+    model: runtime?.localModelName || config.localModelName
+  };
+}
+
+function getOAuthSettings(runtime?: ProviderRuntimeConfig) {
+  return {
+    upstream: runtime?.oauthBackendUpstream || config.oauthBackendUpstream,
+    accessToken: runtime?.oauthAccessToken || ''
+  };
+}
+
+async function callOpenAIResponsesJson(prompt: string, runtime?: ProviderRuntimeConfig): Promise<TopicAnalysisResult> {
+  const settings = getOpenAISettings(runtime);
+  if (!settings.apiKey) {
     throw new Error('OPENAI_API_KEY is missing.');
   }
 
-  const response = await fetch(`${config.openAIBaseUrl}/responses`, {
+  const response = await fetch(`${settings.baseUrl}/responses`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.openAIApiKey}`
+      Authorization: `Bearer ${settings.apiKey}`
     },
     body: JSON.stringify({
-      model: config.openAIModel,
+      model: settings.model,
       text: { format: { type: 'json_object' } },
       input: [
         {
@@ -103,19 +144,20 @@ async function callOpenAIResponsesJson(prompt: string): Promise<TopicAnalysisRes
   return parseJsonSafely<TopicAnalysisResult>(data.output_text);
 }
 
-async function callOpenAIResponsesText(prompt: string): Promise<string> {
-  if (!config.openAIApiKey) {
+async function callOpenAIResponsesText(prompt: string, runtime?: ProviderRuntimeConfig): Promise<string> {
+  const settings = getOpenAISettings(runtime);
+  if (!settings.apiKey) {
     throw new Error('OPENAI_API_KEY is missing.');
   }
 
-  const response = await fetch(`${config.openAIBaseUrl}/responses`, {
+  const response = await fetch(`${settings.baseUrl}/responses`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.openAIApiKey}`
+      Authorization: `Bearer ${settings.apiKey}`
     },
     body: JSON.stringify({
-      model: config.openAIModel,
+      model: settings.model,
       input: [
         {
           role: 'developer',
@@ -177,16 +219,21 @@ async function callOpenAICompatible(baseUrl: string, apiKey: string, model: stri
   return content;
 }
 
-async function callOAuthBackendJson(payload: object, accessToken?: string | null): Promise<TopicAnalysisResult> {
-  if (!config.oauthBackendUpstream) {
+async function callOAuthBackendJson(
+  payload: object,
+  accessToken?: string | null,
+  runtime?: ProviderRuntimeConfig
+): Promise<TopicAnalysisResult> {
+  const settings = getOAuthSettings(runtime);
+  if (!settings.upstream) {
     throw new Error('OAUTH_BACKEND_UPSTREAM is missing.');
   }
 
-  const response = await fetch(config.oauthBackendUpstream, {
+  const response = await fetch(settings.upstream, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+      ...(accessToken || settings.accessToken ? { Authorization: `Bearer ${accessToken || settings.accessToken}` } : {})
     },
     body: JSON.stringify(payload)
   });
@@ -199,16 +246,21 @@ async function callOAuthBackendJson(payload: object, accessToken?: string | null
   return (await response.json()) as TopicAnalysisResult;
 }
 
-async function callOAuthBackendText(payload: object, accessToken?: string | null): Promise<string> {
-  if (!config.oauthBackendUpstream) {
+async function callOAuthBackendText(
+  payload: object,
+  accessToken?: string | null,
+  runtime?: ProviderRuntimeConfig
+): Promise<string> {
+  const settings = getOAuthSettings(runtime);
+  if (!settings.upstream) {
     throw new Error('OAUTH_BACKEND_UPSTREAM is missing.');
   }
 
-  const response = await fetch(config.oauthBackendUpstream, {
+  const response = await fetch(settings.upstream, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+      ...(accessToken || settings.accessToken ? { Authorization: `Bearer ${accessToken || settings.accessToken}` } : {})
     },
     body: JSON.stringify(payload)
   });
@@ -286,7 +338,7 @@ export async function analyzeTopicAnswer(
       `用户回答：${input.answer}`
     ].join('\n');
 
-    return callOpenAIResponsesJson(prompt);
+    return callOpenAIResponsesJson(prompt, input.providerConfig);
   }
 
   if (input.provider === 'local-openai-compatible') {
@@ -300,12 +352,8 @@ export async function analyzeTopicAnswer(
       `用户回答：${input.answer}`
     ].join('\n');
 
-    const raw = await callOpenAICompatible(
-      config.localModelBaseUrl,
-      config.localModelApiKey,
-      config.localModelName,
-      prompt
-    );
+    const local = getLocalModelSettings(input.providerConfig);
+    const raw = await callOpenAICompatible(local.baseUrl, local.apiKey, local.model, prompt);
 
     return parseJsonSafely<TopicAnalysisResult>(raw);
   }
@@ -318,7 +366,8 @@ export async function analyzeTopicAnswer(
         session: input.session,
         answer: input.answer
       },
-      accessToken
+      accessToken,
+      input.providerConfig
     );
   }
 
@@ -340,18 +389,12 @@ export async function askInlineQuestion(
   ].join('\n');
 
   if (input.provider === 'openai-responses') {
-    return { answer: await callOpenAIResponsesText(prompt) };
+    return { answer: await callOpenAIResponsesText(prompt, input.providerConfig) };
   }
 
   if (input.provider === 'local-openai-compatible') {
-    return {
-      answer: await callOpenAICompatible(
-        config.localModelBaseUrl,
-        config.localModelApiKey,
-        config.localModelName,
-        prompt
-      )
-    };
+    const local = getLocalModelSettings(input.providerConfig);
+    return { answer: await callOpenAICompatible(local.baseUrl, local.apiKey, local.model, prompt) };
   }
 
   if (input.provider === 'oauth-backend') {
@@ -364,10 +407,49 @@ export async function askInlineQuestion(
           paragraph: input.paragraph,
           question: input.question
         },
-        accessToken
+        accessToken,
+        input.providerConfig
       )
     };
   }
 
   return { answer: inlineMock(input) };
+}
+
+export async function testProviderConnection(input: ProviderTestRequest): Promise<{ ok: true; detail: string }> {
+  if (input.provider === 'mock') {
+    return { ok: true, detail: 'mock provider is available.' };
+  }
+
+  if (input.provider === 'openai-responses') {
+    const text = await callOpenAIResponsesText('Return exactly: ok', input.providerConfig);
+    return { ok: true, detail: `openai-responses connected (${text.slice(0, 80)})` };
+  }
+
+  if (input.provider === 'local-openai-compatible') {
+    const local = getLocalModelSettings(input.providerConfig);
+    const text = await callOpenAICompatible(local.baseUrl, local.apiKey, local.model, 'Return exactly: ok');
+    return { ok: true, detail: `local-openai-compatible connected (${text.slice(0, 80)})` };
+  }
+
+  const oauth = getOAuthSettings(input.providerConfig);
+  if (!oauth.upstream) {
+    throw new Error('OAuth upstream URL is required.');
+  }
+
+  const response = await fetch(oauth.upstream, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(oauth.accessToken ? { Authorization: `Bearer ${oauth.accessToken}` } : {})
+    },
+    body: JSON.stringify({ mode: 'health-check' })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`OAuth backend test failed: ${response.status} ${errorText}`);
+  }
+
+  return { ok: true, detail: 'oauth-backend upstream reachable.' };
 }

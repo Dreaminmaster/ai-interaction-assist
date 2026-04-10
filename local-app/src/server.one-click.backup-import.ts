@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { config } from './config';
 import { exportRouter } from './exportRoutes';
 import { importRouter } from './importRoutes';
-import { analyzeTopicAnswer, askInlineQuestion } from './providers';
+import { analyzeTopicAnswer, askInlineQuestion, testProviderConnection } from './providers';
 import { stateRouter } from './stateRoutes';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +28,7 @@ app.get('/health', (_req, res) => {
 app.post('/api/analyze-topic-answer', async (req, res) => {
   try {
     const accessToken = req.headers.authorization?.replace(/^Bearer\s+/i, '') ?? null;
+    console.log(`[analyze-topic-answer] provider=${req.body?.provider ?? 'unknown'}`);
     const result = await analyzeTopicAnswer(req.body, accessToken);
     res.json(result);
   } catch (error) {
@@ -39,10 +40,21 @@ app.post('/api/analyze-topic-answer', async (req, res) => {
 app.post('/api/ask-inline', async (req, res) => {
   try {
     const accessToken = req.headers.authorization?.replace(/^Bearer\s+/i, '') ?? null;
+    console.log(`[ask-inline] provider=${req.body?.provider ?? 'unknown'}`);
     const result = await askInlineQuestion(req.body, accessToken);
     res.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown inline ask error';
+    res.status(500).json({ error: message });
+  }
+});
+
+app.post('/api/test-provider', async (req, res) => {
+  try {
+    const result = await testProviderConnection(req.body);
+    res.json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown provider test error';
     res.status(500).json({ error: message });
   }
 });
