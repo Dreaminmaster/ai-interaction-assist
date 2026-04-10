@@ -116,11 +116,11 @@ let state = {
   isAnalyzing: false,
   statusMessage: '',
   providerConfig: {
-    openaiBaseUrl: '',
-    openaiModel: '',
+    openaiBaseUrl: 'https://api.openai.com/v1',
+    openaiModel: 'gpt-5',
     openaiApiKey: '',
-    localModelBaseUrl: '',
-    localModelName: '',
+    localModelBaseUrl: 'http://127.0.0.1:1234/v1',
+    localModelName: 'local-model',
     localModelApiKey: '',
     oauthBackendUpstream: '',
     oauthAccessToken: ''
@@ -450,7 +450,20 @@ async function handleInlineAsk(textarea) {
   const threadId = `inline-${crypto.randomUUID()}`;
   const configError = validateProviderConfig(state.provider, state.providerConfig);
   if (configError) {
+    ensureInlineThreads(session).push({
+      id: threadId,
+      afterParagraph,
+      userText: question,
+      aiText: configError,
+      status: 'error'
+    });
+    textarea.value = '';
+    textarea.style.height = '28px';
+    textarea.closest('.inline-composer')?.classList.remove('inline-composer-expanded');
     state.statusMessage = configError;
+    render();
+    await syncState();
+    state.statusMessage = '';
     render();
     return;
   }
