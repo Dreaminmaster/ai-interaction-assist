@@ -105,6 +105,7 @@ const seedTopics = [
     updatedAt: new Date().toISOString()
   }
 ];
+const CLIENT_BUILD = '20260410-r6';
 
 let state = {
   lang: 'zh-CN',
@@ -115,6 +116,7 @@ let state = {
   activeSessionId: '',
   isAnalyzing: false,
   statusMessage: '',
+  runtimeStartedAt: '',
   providerConfig: {
     openaiBaseUrl: 'https://api.openai.com/v1',
     openaiModel: 'gpt-5',
@@ -134,6 +136,15 @@ async function fetchJson(url, options = {}) {
   const r = await fetch(url, options);
   if (!r.ok) throw new Error((await r.text()) || `Request failed: ${r.status}`);
   return r.json();
+}
+
+async function loadRuntimeInfo() {
+  try {
+    const info = await fetchJson('/api/runtime-info');
+    state.runtimeStartedAt = info.startedAt || '';
+  } catch {
+    state.runtimeStartedAt = '';
+  }
 }
 
 function setText(id, text) {
@@ -387,7 +398,8 @@ function validateProviderConfig(provider, cfg) {
 
 function renderStatus() {
   const base = state.isAnalyzing ? t('analyzing') : `${t('provider_label')}${state.provider}`;
-  setText('statusText', state.statusMessage || base);
+  const runtimePart = state.runtimeStartedAt ? ` | srv:${state.runtimeStartedAt}` : '';
+  setText('statusText', `${state.statusMessage || base} | web:${CLIENT_BUILD}${runtimePart}`);
   const submit = byId('submitAnswerBtn');
   const answer = byId('answerInput');
   if (submit) submit.disabled = state.isAnalyzing;
@@ -703,6 +715,7 @@ function bindEvents() {
 }
 
 await loadState();
+await loadRuntimeInfo();
 loadProviderConfig();
 bindEvents();
 render();

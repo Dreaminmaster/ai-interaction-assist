@@ -12,10 +12,17 @@ import { stateRouter } from './stateRoutes';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicDir = path.resolve(__dirname, '../public');
+const startedAt = new Date().toISOString();
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
+app.use((_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
 app.use(express.static(publicDir));
 app.use('/api', stateRouter);
 app.use('/api', exportRouter);
@@ -23,6 +30,10 @@ app.use('/api', importRouter);
 
 app.get('/health', (_req, res) => {
   res.json({ ok: true, service: 'ai-interaction-assist-local-app-one-click-backup-import' });
+});
+
+app.get('/api/runtime-info', (_req, res) => {
+  res.json({ ok: true, startedAt, service: 'ai-interaction-assist-local-app-one-click-backup-import' });
 });
 
 app.post('/api/analyze-topic-answer', async (req, res) => {
