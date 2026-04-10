@@ -25,9 +25,10 @@
 
         <div class="section-title">Provider</div>
         <select class="select-input" id="providerSelect">
-          <option value="mock">mock</option>
+          <option value="local-openai-compatible">local-openai-compatible</option>
           <option value="openai-responses">openai-responses</option>
           <option value="oauth-backend">oauth-backend</option>
+          <option value="mock">mock</option>
         </select>
 
         <div class="section-title" data-i18n="create_topic">新建学习主题</div>
@@ -55,6 +56,14 @@
           <h1 id="topicTitle">AI 交互式学习系统</h1>
           <p id="topicGoal">本地一键打开的长期学习网页应用。</p>
         </div>
+
+        <section class="content-card lesson-flow-card">
+          <div class="section-header-row">
+            <h2 data-i18n="reading_flow">段落学习流</h2>
+            <span class="session-focus-label" data-i18n="ask_hint">可在段落间直接提问</span>
+          </div>
+          <div id="lessonFlow" class="lesson-flow"></div>
+        </section>
 
         <div class="grid-two">
           <section class="content-card">

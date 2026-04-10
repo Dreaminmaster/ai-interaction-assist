@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { config } from './config';
 import { exportRouter } from './exportRoutes';
 import { importRouter } from './importRoutes';
-import { analyzeTopicAnswer } from './providers';
+import { analyzeTopicAnswer, askInlineQuestion } from './providers';
 import { stateRouter } from './stateRoutes';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +32,17 @@ app.post('/api/analyze-topic-answer', async (req, res) => {
     res.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown local app error';
+    res.status(500).json({ error: message });
+  }
+});
+
+app.post('/api/ask-inline', async (req, res) => {
+  try {
+    const accessToken = req.headers.authorization?.replace(/^Bearer\s+/i, '') ?? null;
+    const result = await askInlineQuestion(req.body, accessToken);
+    res.json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown inline ask error';
     res.status(500).json({ error: message });
   }
 });
