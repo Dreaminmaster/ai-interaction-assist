@@ -161,6 +161,25 @@ function getSession() {
   return state.sessions.find((x) => x.id === state.activeSessionId) || null;
 }
 
+function buildAutoSession(topic) {
+  return {
+    id: `session-${crypto.randomUUID()}`,
+    topicId: topic.id,
+    title: `${topic.title} · ${state.lang === 'en' ? 'Session' : '学习轮次'}`,
+    objective: topic.goal,
+    summary: state.lang === 'en' ? 'Session started.' : '已开始学习。',
+    masteredPoints: [],
+    weakPoints: [],
+    reviewQuestions:
+      state.lang === 'en'
+        ? ['What is the core idea in this section?', 'Give one real-life example.', 'What is still unclear?']
+        : ['这一节的核心观点是什么？', '请给一个生活或工作中的例子。', '你还不确定的点是什么？'],
+    nextEntry: state.lang === 'en' ? 'Answer current questions.' : '先回答当前问题。',
+    createdAt: new Date().toISOString(),
+    inlineThreads: []
+  };
+}
+
 function getRecentSessions(topicId) {
   return state.sessions
     .filter((s) => s.topicId === topicId)
@@ -416,9 +435,15 @@ function resizeInlineInput(textarea) {
 
 async function handleInlineAsk(textarea) {
   const topic = getTopic();
-  const session = getSession();
+  let session = getSession();
   const question = textarea.value.trim();
-  if (!topic || !session || !question) return;
+  if (!topic || !question) return;
+
+  if (!session) {
+    session = buildAutoSession(topic);
+    state.sessions.unshift(session);
+    state.activeSessionId = session.id;
+  }
 
   const afterParagraph = Number(textarea.dataset.afterParagraph);
   const paragraph = lessonParagraphs(topic, session)[afterParagraph] || '';
